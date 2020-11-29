@@ -4619,6 +4619,39 @@ out:
 			__func__, buf, (int)strnlen(buf, sizeof(buf)));
 }
 
+static void touch_enable(void *dev_data)
+{
+	struct sec_cmd_data *sec = (struct sec_cmd_data *)dev_data;
+	char buf[16] = { 0 };
+
+	sec_cmd_set_default_result(sec);
+
+	switch (sec->cmd_param[0]) {
+	case 0:
+		sec->cmd_state = SEC_CMD_STATUS_OK;
+		I("%s: Disable touchscreen input\n", __func__);
+		himax_int_enable(0);
+		break;
+	case 1:
+		sec->cmd_state = SEC_CMD_STATUS_OK;
+		I("%s Enable touchscreen input\n", __func__);
+		himax_int_enable(1);
+		break;
+	default:
+		sec->cmd_state = SEC_CMD_STATUS_FAIL;
+		I("%s: Invalid Argument\n", __func__);
+		break;
+	}
+
+	if (sec->cmd_state == SEC_CMD_STATUS_OK)
+		snprintf(buf, sizeof(buf), "OK");
+	else
+		snprintf(buf, sizeof(buf), "NG");
+
+	sec_cmd_set_cmd_result(sec, buf, strnlen(buf, sizeof(buf)));
+	sec_cmd_set_cmd_exit(sec);
+}
+
 
 #ifdef HX_SMART_WAKEUP
 static void aot_enable(void *dev_data)
@@ -4769,6 +4802,7 @@ struct sec_cmd sec_cmds[] = {
 	{SEC_CMD("set_grip_data", set_grip_data),},
 	{SEC_CMD("factory_cmd_result_all", factory_cmd_result_all),},
 	{SEC_CMD("glove_mode", glove_mode),},
+	{SEC_CMD("touch_enable", touch_enable),},
 #ifdef HX_SMART_WAKEUP
 	{SEC_CMD("aot_enable", aot_enable),},
 #endif
